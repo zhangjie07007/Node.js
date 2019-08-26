@@ -1,0 +1,7 @@
+<div id="hd" class="container">
+    <% if(username){ %>
+        <span>欢迎回来，<span id="name"><%=username %></span></span><input id="returnLogin" type="button" value="退出登入" class="btn btn-info btn-md">
+    <% }else{ %>
+        <span>未登录</span>
+    <% } %>
+    </div>

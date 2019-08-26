@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.css">
+    <script src="/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" href="./common.css">
+    <title>Document</title>
+</head>
+<body>
+        <%- include ./hesder.ejs %>
+    <div class="container">
+        <h1 class="text-center text-info">注册</h1>
+        <form action="" class="form row">
+            <div class="form-group col-md-8 col-md-offset-2">
+                <label for="username">用户名</label>
+                <input type="text" class="form-control" id="username">
+                <span class="usernametext"></span>
+            </div>
+            <div class="form-group col-md-8 col-md-offset-2">
+                <label for="pwd">密码</label>
+                <input type="password" class="form-control" id="pwd">
+            </div>
+            <div class="form-group col-md-8 col-md-offset-2">
+                <label for="pwd">年龄</label>
+                <input type="text" class="form-control" id="age">
+            </div>
+            <div class="form-group col-md-8 col-md-offset-2">
+                <label for="pwd">昵称</label>
+                <input type="text" class="form-control" id="nickname">
+            </div>
+            <div class="form-group col-md-8 col-md-offset-2">
+                <input type="button" class="btn btn-primary" id="btn" value="提交">
+                <input type="button" class="btn btn-success" id="login" value="登录">
+            </div>
+        </form>
+    </div>
+    
+</body>
+<script>
+    $('#btn').on('click',function(){
+        let obj = {};
+        obj.username = $('#username').val();
+        obj.pwd = $('#pwd').val();
+        obj.age = $('#age').val();
+        obj.nickname = $('#nickname').val();
+        obj.img = '';
+        // console.log(obj)
+        fetch('http://localhost:8890/doRegister',{
+            method:'post',
+            headers:{'content-type':'application/json;charset=utf-8'},
+            body:JSON.stringify(obj)
+        }).then(res=>{
+            return res.text();
+        }).then(data=>{
+            console.log(data);
+            let obj = JSON.parse(data);
+            if(obj.err == 0){
+                alert('注册成功');
+                window.location.href = 'http://localhost:8890/';
+            }else{
+                alert('用户名已存在');
+            }
+        })
+    })
+
+        $('#username').on('blur',function(){
+            console.log(77);
+            let obj = {};
+            obj.username = $('#username').val();
+            fetch('http://localhost:8890/doCheckName',{
+                method:'post',
+                headers:{'content-type':'application/json;charset=utf-8'},
+                body:JSON.stringify(obj)
+            }).then(res=>{return res.text()}).then(data=>{
+                console.log(data);
+                let obj = JSON.parse(data);
+                if(obj.msg.length){
+                    $('.usernametext').text('用户名已存在').addClass('text-danger').removeClass('text-success');
+                }else{
+                    $('.usernametext').text('用户名可用').addClass('text-success').removeClass('text-danger');
+                }
+            })
+        })
+
+    $('#returnLogin').on('click',function(){
+        fetch('http://localhost:8890/returnLogin',{
+            method:'post',
+            headers:{'content-type':'application/json;charset=utf-8'},
+        }).then(res=>{return res.text()}).then(data=>{
+            console.log(data);
+            if(data == 'true'){
+                alert('成功退出登入');
+                location.href = 'http://localhost:8890/';
+            }
+        })
+    });
+    $('#login').on('click',function(){
+        location.href = 'http://localhost:8890/'
+    })
+</script>
+</html>

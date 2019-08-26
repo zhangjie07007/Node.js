@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+        .table thead tr th{text-align: center}
+        .page{margin: 0px auto;width: 500px;display: flex;justify-content: space-around}
+    </style>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.css">
+    <script src="/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" href="./personal.css">
+    <link rel="stylesheet" href="./common.css">
+    <title>Document</title>
+</head>
+<body>
+        <%- include ./hesder.ejs %>
+    <div id="div" class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <%- include ./nav.ejs %>
+            </div>
+            <div class="col-md-8" id="message">
+                <h3 class="text-info text-center">个人信息</h3>
+                <div id="info_view">
+                    <div><span class="span">昵称：</span><span id="nickname_view"></span></div>
+                    <div><span class="span">年龄：</span><span id="age_view"></span></div>
+                    <div id="img_box">
+                        <form action="http://localhost:8890/updateImg" method="POST" enctype="multipart/form-data">
+                            <img id="img" src="" alt="">
+                            <input type="file" name="user_img" id="user_img" class="btn btn-xs" value="选择图片">
+                            <input type="submit" name="user_img" id="user_btn" class="btn btn-xs btn-warning" value="提交">
+                        </form>
+                    </div>
+                </div>
+                <hr>
+                <h3>个人信息修改</h3>
+                <div id="update_name">
+                    <label for="name">修改昵称</label>
+                    <input type="text" name="nickname" id="nname">
+                </div>
+                <div id="update_pwd">
+                    <span>修改密码</span>
+                    <div>
+                        <label for="pwd">旧密码</label>
+                        <input type="text" name="nickname" id="pwd">
+                        <span id="pwdtext"></span>
+                    </div>
+                    <div>
+                        <label for="pwd">新密码</label>
+                        <input type="text" name="nickname" id="newpwd">
+                    </div>
+                </div>
+                <div id="update_age">
+                    <label for="age">修改年龄</label>
+                    <input type="text" name="nickname" id="age">
+                </div>
+                <input type="button" value="提交" class="btn btn-success btn-sm" id="submit">
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    $('#returnLogin').on('click',function(){
+        fetch('http://localhost:8890/returnLogin',{
+            method:'post',
+            headers:{'content-type':'application/json;charset=utf-8'},
+        }).then(res=>{return res.text()}).then(data=>{
+            console.log(data);
+            if(data == 'true'){
+                alert('成功退出登入');
+                location.href = 'http://localhost:8890/';
+            }
+        })
+    });
+    viewInfo();
+    function viewInfo(){
+        fetch('http://localhost:8890/getUserInfo').then(res=>res.text()).then(data=>{
+            let obj = JSON.parse(data).msg[0];
+            console.log(obj);
+            $('#nickname_view').text(obj.nickname)
+            $('#age_view').text(obj.age)
+            if(obj.img == ''){
+                $('#img').attr('src','123.png');
+            }else{
+                let str = (obj.img).replace('upload\\','');
+                $('#img').attr('src',str);
+            }
+        });
+    }
+
+    $('#submit').on('click',function(e){
+        let obj = {
+            nickname:$('#nname').val(),
+            age:$('#age').val(),
+            pwd:$('#pwd').val(),
+            newpwd:$('#newpwd').val()
+        };
+        console.log(obj);
+        fetch('http://localhost:8890/updateInfo',{
+            method:'post',
+            headers:{'content-type':'application/json;charset=utf-8'},
+            body:JSON.stringify(obj)
+        }).then(res=>res.text()).then(data=>{
+            let obj = JSON.parse(data);
+            console.log(obj);
+            if(obj.msg){
+                alert('修改成功');
+                $('#pwdtext').text('').removeClass('text-danger');
+            }else{
+                // alert('旧密码错误');
+                $('#pwdtext').text('旧密码错误').addClass('text-danger');
+            }
+        })
+    })
+
+
+</script>
+</html>

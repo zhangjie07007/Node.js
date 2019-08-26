@@ -1,0 +1,69 @@
+
+
+
+#info_view{
+    display: flex;
+    height: 60px;
+    justify-content: space-around;
+    font-size: 16px;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 120px;
+    position: relative;
+}
+#info_view div{
+    display: flex;
+    height: 120px;
+    position: relative;
+}
+#info_view div .span{
+    padding-right: 20px;
+}
+#nickname_view,#age_view{
+    font-weight: 600;
+    color: coral;
+}
+label{
+    font-size: 14px;
+}
+#nname,#pwd,#age,#newpwd{
+    width: 400px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+#update_pwd{
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    margin: 10px 0px;
+
+}
+#update_pwd label{
+    padding-left: 15px;
+    margin: 10px 0px;
+}
+#update_pwd span{
+    font-size: 14px;
+    font-weight: 600;
+}
+#update_age{
+    margin-bottom: 15px;
+}
+#img_box{
+    width: 100px;
+    height: 100px!important;
+    background-color: aquamarine;
+    position: absolute;
+    left: 600px;
+    top:-50px;
+}
+#img_box img{
+    width: 100px;
+    height: 100px;
+}
+#user_btn{
+    margin-left: 5px;
+    width: 60px;
+    height: 20px;
+}

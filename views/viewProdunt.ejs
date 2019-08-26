@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+        .table thead tr th{text-align: center}
+        .page{margin: 0px auto;width: 500px;display: flex;justify-content: space-around}
+    </style>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.css">
+    <script src="/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" href="./viewProdunt.css">
+    <link rel="stylesheet" href="./common.css">
+    <title>Document</title>
+</head>
+<body>
+        <%- include ./hesder.ejs %>
+    <div id="div" class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <%- include ./nav.ejs %>
+            </div>
+            <div class="col-md-8" id="message">
+                <h3 class="text-info text-center">商品展示</h3>
+                <div class="text-right">
+                    <input type="text" name="search" id="search">
+                    <input type="button" id="sea_btn" class="btn btn-warning btn-sm" value="搜索">
+                </div>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>商品图片</th>
+                            <th>商品名称</th>
+                            <th>商品价格</th>
+                            <th>商品数量</th>
+                            <th>是否上架</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb">
+
+                    </tbody>
+                </table>
+                <div id="btns">
+                    <input type="button" id="last" value="上一页" class="btn btn-sm btn-primary">
+                    <input type="button" id="next" value="下一页" class="btn btn-sm btn-primary">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    init();
+    
+    function init(){
+        let obj = {
+            pagesize:6,
+            page : 0
+        };
+        fetch('http://localhost:8890/getProductInfo',{
+            method:'post',
+            headers:{'content-type':'application/json;charset=utf-8'},
+            body:JSON.stringify(obj)
+        }).then(res=>res.text()).then(data=>{
+            let arrObj = JSON.parse(data).msg;
+            // console.log(arrObj);
+            createElem(arrObj);
+        })
+    }
+
+    $('#last').on('click',clickHandle);
+    $('#next').on('click',clickHandle);
+    function clickHandle(e){
+        let pagesize = 6;
+        let page = 0 ;
+        console.log(e.target.id)
+        if(e.target.id == 'last'){
+            page--;
+            if(page<0){
+                page = 0;
+            }
+            fetch('http://localhost:8890/getProductInfo',{
+                method:'post',
+                headers:{'content-type':'application/json;charset=utf-8'},
+                body:JSON.stringify({pagesize:6,page:page})
+                }).then(res=>res.text()).then(data=>{
+                    let arrObj = JSON.parse(data).msg;
+                    // console.log(arrObj);
+                    createElem(arrObj);
+            })
+        }else if(e.target.id == 'next'){
+            page++;
+            fetch('http://localhost:8890/getProductInfo',{
+                method:'post',
+                headers:{'content-type':'application/json;charset=utf-8'},
+                body:JSON.stringify({pagesize:6,page:page})
+                }).then(res=>res.text()).then(data=>{
+                    let arrObj = JSON.parse(data).msg;
+                    // console.log(arrObj);
+                    createElem(arrObj);
+            })
+        }
+    }
+    function createElem(arr){
+        $('#tb').empty();
+        for(let i = 0 ; i < arr.length ; i++){
+            let obj = arr[i];
+            let src = (obj.pro_img).replace('upload\\','')
+
+            let td_img = $("<td><img src ="+src+" width='100'></td>");
+            let td_name = $("<td>"+obj.pro_name+"</td>");
+            let td_price = $("<td>"+obj.pro_price+"</td>");
+            let td_num = $("<td>"+obj.pro_num+"</td>");
+            let str = obj.pro_shelf?'上架':'下架';
+            let td_shlef = $("<td>"+str+"</td>");
+            let td_btns = $('<td></td>')
+
+            let shift_btn = $("<input type = 'button' id='shift_btn' class = 'btn btn-success btn-xs' value='切换状态'>")
+            shift_btn.on('click',function(){
+                shift(obj._id,obj.pro_shelf);
+            });
+            let del_btn = $("<input type = 'button' class = 'btn btn-danger btn-xs' value='删除'>")
+            del_btn.on('click',function(){
+                deletepro(obj._id,obj.pro_img);
+            });
+            td_btns.append(shift_btn);
+            td_btns.append(del_btn);
+
+            let tr = $('<tr></tr>').append(td_img).append(td_name).append(td_price).append(td_num).append(td_shlef).append(td_btns)
+            $('#tb').append(tr);
+
+        }
+    }
+    function shift(id,flag){
+        let is = !flag;
+        let obj = {
+            "flag":is,
+            "_id":id
+        };
+        fetch('http://localhost:8890/updateProInfo',{
+            method:'post',
+            headers:{'content-type':'application/json;charset=utf-8'},
+            body:JSON.stringify(obj)
+        }).then(res=>res.text()).then(data=>{
+            let obj = JSON.parse(data).msg;
+            console.log(obj);
+            if(obj){
+                init();
+            }
+        })
+    }
+    function deletepro(id,path){
+        fetch('http://localhost:8890/delProInfo',{
+            method:'post',
+            headers:{'content-type':'application/json;charset=utf-8'},
+            body:JSON.stringify({_id:id,_path:path})
+        }).then(res=>res.text()).then(data=>{
+            let obj = JSON.parse(data).msg;
+            console.log(obj);
+            if(obj){
+                init();
+            }
+        })
+    }
+    $('#sea_btn').on('click',function(){
+        fetch('http://localhost:8890/searchInfo',{
+            method:'post',
+            headers:{'content-type':'application/json;charset=utf-8'},
+            body:JSON.stringify({msg:$('#search').val()})
+        }).then(res=>res.text()).then(data=>{
+            let obj = JSON.parse(data);
+            console.log(obj);
+            createElem(obj.msg)
+        })
+    })
+
+</script>
+</html>
